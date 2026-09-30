@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Search</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #0f0f0f; color: #e0e0e0; padding: 20px; }
+        h1 { color: #7eb8f7; margin-bottom: 20px; font-size: 1.4rem; }
+        #filters { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; align-items: flex-end; }
+        .filter-group { display: flex; flex-direction: column; gap: 4px; }
+        label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
+        input[type="text"], input[type="number"] { background: #1e1e1e; border: 1px solid #333; color: #e0e0e0; padding: 8px 12px; border-radius: 4px; font-size: 0.9rem; width: 180px; }
+        input:focus { outline: none; border-color: #7eb8f7; }
+        .checkbox-group { display: flex; align-items: center; gap: 8px; padding-bottom: 8px; }
+        button { background: #7eb8f7; color: #0f0f0f; border: none; padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
+        button:hover { background: #a0ccff; }
+        #fetch-btn { background: #444; color: #e0e0e0; }
+        #fetch-btn:hover { background: #555; }
+        #status { font-size: 0.8rem; color: #888; margin-bottom: 16px; }
+        #results { display: grid; gap: 12px; }
+        .job-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px; padding: 16px; }
+        .job-card:hover { border-color: #7eb8f7; }
+        .job-title { font-size: 1rem; font-weight: bold; color: #7eb8f7; text-decoration: none; }
+        .job-title:hover { text-decoration: underline; }
+        .job-meta { font-size: 0.8rem; color: #888; margin: 6px 0; display: flex; gap: 16px; flex-wrap: wrap; }
+        .remote-badge { background: #1a3a1a; color: #4caf50; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; }
+        .salary { color: #a0d4a0; }
+        .job-description { font-size: 0.85rem; color: #aaa; margin-top: 8px; line-height: 1.5; }
+        .source-tag { font-size: 0.7rem; color: #555; margin-top: 8px; }
+    </style>
+</head>
+<body>
+    <h1>Job Search</h1>
+    <div id="filters">
+        <div class="filter-group">
+            <label>Keyword</label>
+            <input type="text" id="keyword" placeholder="technical support" />
+        </div>
+        <div class="filter-group">
+            <label>Min Salary (annual)</label>
+            <input type="number" id="min-salary" value="41600" />
+        </div>
+        <div class="filter-group">
+            <label>&nbsp;</label>
+            <div class="checkbox-group">
+                <input type="checkbox" id="remote-only" />
+                <label for="remote-only" style="text-transform:none;">Remote only</label>
+            </div>
+        </div>
+        <div class="filter-group">
+            <label>&nbsp;</label>
+            <button onclick="loadJobs()">Search DB</button>
+        </div>
+        <div class="filter-group">
+            <label>&nbsp;</label>
+            <button id="fetch-btn" onclick="fetchNew()">Fetch New Listings</button>
+        </div>
+    </div>
+    <div id="status"></div>
+    <div id="results"></div>
+    <script src="/app.js"></script>
+</body>
+</html>
