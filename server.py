@@ -1,9 +1,12 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
-from database import fetch_jobs, initialize_db
-initialize_db()
-from database import fetch_jobs
+from urllib.parse import urlparse, parse_qs
+from database import fetch_jobs, initialize_db, insert_job
 from config import DEFAULT_MIN_SALARY
+from connectors.adzuna import fetch_jobs as adzuna_fetch
+from connectors.muse import fetch_jobs as muse_fetch
+
+initialize_db()
 
 class JobHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -32,7 +35,6 @@ class JobHandler(BaseHTTPRequestHandler):
             self.end_headers()
 
     def serve_jobs(self):
-        from urllib.parse import urlparse, parse_qs
         parsed = urlparse(self.path)
         params = parse_qs(parsed.query)
 
@@ -70,23 +72,16 @@ class JobHandler(BaseHTTPRequestHandler):
         self.wfile.write(response)
 
     def serve_fetch(self):
-        from urllib.parse import urlparse, parse_qs
-        from connectors.adzuna import fetch_jobs as adzuna_fetch
-        from database import insert_job
-        parsed = urlparse(self.path)
-        params = parse_qs(parsed.query)
+        params = parse_qs(urlparse(self.path).query)
         keyword = params.get("keyword", ["technical support"])[0]
-        jobs = adzuna_fetch(keywords=keyword)
-        for job in jobs:
-            insert_job(job)
-        from connectors.muse import fetch_jobs as muse_fetch
-        jobs = adzuna_fetch(keywords=keyword)
-        for job in jobs:
-            insert_job(job)
+
+        adzuna_jobs = adzuna_fetch(keywords=keyword)
         muse_jobs = muse_fetch(keywords=keyword)
-        for job in muse_jobs:
+        for job in adzuna_jobs + muse_jobs:
             insert_job(job)
-        response = json.dumps({"message": f"Fetched {len(jobs)} listings"}).encode()
+
+        message = f"Fetched {len(adzuna_jobs)} from Adzuna, {len(muse_jobs)} from The Muse"
+        response = json.dumps({"message": message}).encode()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.send_header("Access-Control-Allow-Origin", "*")
@@ -102,4 +97,5 @@ def start_server(port=8765):
     server.serve_forever()
 
 if __name__ == "__main__":
-    start_server()
+    import os
+    start_server(int(os.environ.get("JOB_SEARCH_PORT", 8766)))
